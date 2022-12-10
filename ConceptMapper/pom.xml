@@ -1,0 +1,340 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+	Licensed to the Apache Software Foundation (ASF) under one
+	or more contributor license agreements.  See the NOTICE file
+	distributed with this work for additional information
+	regarding copyright ownership.  The ASF licenses this file
+	to you under the Apache License, Version 2.0 (the
+	"License"); you may not use this file except in compliance
+	with the License.  You may obtain a copy of the License at
+	
+	http://www.apache.org/licenses/LICENSE-2.0
+	
+	Unless required by applicable law or agreed to in writing,
+	software distributed under the License is distributed on an
+	"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+	KIND, either express or implied.  See the License for the
+	specific language governing permissions and limitations
+	under the License.    
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  
+  <parent>
+    <groupId>org.apache.uima</groupId>
+    <artifactId>parent-pom</artifactId>
+    <version>11</version>
+    <relativePath />
+  </parent>
+  
+  <artifactId>ConceptMapper</artifactId>
+  <version>2.10.3-SNAPSHOT</version>
+  <name>Apache UIMA Annotator: ${project.artifactId}</name>
+  <description>Extracts concepts from a CAS</description>
+  <url>${uimaWebsiteUrl}</url>
+
+  <!-- Special inheritance note
+       even though the <scm> element that follows is exactly the 
+       same as those in super poms, it cannot be inherited because 
+       there is some special code that computes the connection elements
+       from the chain of parent poms, if this is omitted. 
+       
+       Keeping this a bit factored allows cutting/pasting the <scm>
+       element, and just changing the following two properties -->  
+  <scm>
+    <connection>
+      scm:svn:http://svn.apache.org/repos/asf/uima/addons/trunk/ConceptMapper
+    </connection>
+    <developerConnection>
+      scm:svn:https://svn.apache.org/repos/asf/uima/addons/trunk/ConceptMapper
+    </developerConnection>
+    <url>
+      http://svn.apache.org/viewvc/uima/addons/trunk/ConceptMapper
+    </url>
+  </scm>
+  
+    <!-- The repositories and pluginRepositories section is duplicated from
+       the parent pom one, and adds the Apache Snapshot Nexus repository
+       where UIMA snapshots are deployed.  This is needed if for instance,
+       a project depends on some new SNAPSHOT level of a build tool, 
+       where the users hasn't checked out the build tooling.
+       
+       This allows maven to find the snapshots when looking for the parent of
+       this pom -->
+  <repositories>
+    <repository>
+      <id>eclipsePlugins</id>
+      <name>Eclipse components</name>
+      <layout>default</layout>
+      <url>http://repo1.maven.org/eclipse</url>
+      
+      <releases>
+        <updatePolicy>never</updatePolicy>
+        <checksumPolicy>fail</checksumPolicy>
+      </releases>
+      
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+    </repository>
+
+    <!-- modify central repository access:
+         Turn on checksum checking-->
+    <repository>
+      <id>central</id>
+      <name>Maven Repository Switchboard</name>
+      <layout>default</layout>
+      <url>http://repo1.maven.org/maven2</url>
+
+      <releases>
+        <enabled>true</enabled>
+        <checksumPolicy>fail</checksumPolicy>
+        <updatePolicy>never</updatePolicy>
+      </releases>
+
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+
+    </repository>
+    
+    <repository>
+      <id>apache.snapshots</id>
+      <name>Apache Snapshot Repository</name>
+      <url>http://repository.apache.org/snapshots</url>
+      <releases>
+        <enabled>false</enabled>
+      </releases>
+    </repository>    
+    
+  </repositories>
+  
+  <pluginRepositories>
+    <pluginRepository>
+      <id>apache.snapshots.plugins</id>
+      <name>Apache Snapshot Repository - Maven plugins</name>
+      <url>http://repository.apache.org/snapshots</url>
+      <layout>default</layout>
+      <releases>
+        <enabled>false</enabled>
+      </releases>
+      <snapshots>
+        <enabled>true</enabled>
+        <checksumPolicy>fail</checksumPolicy>
+        <updatePolicy>never</updatePolicy>        
+      </snapshots>
+    </pluginRepository>
+  </pluginRepositories>
+  
+  <properties>
+    <jiraVersion>ConceptMapper-2.10.2</jiraVersion>
+    <uimaScmProject>${project.artifactId}</uimaScmProject>
+    <uimaDependencyVersion>2.10.2</uimaDependencyVersion>
+    <pearMainDescriptor>desc/analysis_engine/primitive/ConceptMapperOffsetTokenizer.xml</pearMainDescriptor>
+    <bookNameRoot>ConceptMapperAnnotatorUserGuide</bookNameRoot>
+ 
+    <!-- 
+     Configuring settings is best done through default properties that multiple plugins.
+     Local configurations within plugins should be avoided. Where plugins do not pick up default
+     properties already, they should be injected manually into the plugins. 
+    -->    
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <maven.compiler.target>1.7</maven.compiler.target>
+    <maven.compiler.source>1.7</maven.compiler.source>
+    <maven.surefire.heap>512m</maven.surefire.heap>
+    <maven.surefire.argLine />
+    <maven.surefire.java9 />
+    
+    <jacoco.argLine />
+    <api_check_oldVersion>2.3.1</api_check_oldVersion>
+    
+  </properties>
+      
+  <dependencies>
+    <dependency>
+      <groupId>org.apache.uima</groupId>
+      <artifactId>uimaj-core</artifactId>
+      <version>${uimaDependencyVersion}</version>
+      <scope>provided</scope>
+    </dependency>
+  </dependencies>
+  
+  <build>
+    
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.apache.rat</groupId>
+          <artifactId>apache-rat-plugin</artifactId>
+          <executions>
+            <execution>
+              <id>default-cli</id>
+              <configuration>
+                <excludes>
+                  <exclude>release.properties</exclude> <!-- release generated artifact -->
+                  <exclude>README*</exclude>
+                  <exclude>RELEASE_NOTES*</exclude>
+                  <exclude>issuesFixed/**</exclude> <!-- generated file -->
+                  <exclude>marker-file-identifying-*</exclude> <!-- empty file -->
+                  <exclude>DEPENDENCIES</exclude>  <!-- generated file -->
+                  
+                  <exclude>src/main/java/org/apache/uima/conceptMapper/DictTerm*.java</exclude> <!-- JCasgen generated file -->
+                  <exclude>src/main/java/org/apache/uima/conceptMapper/support/tokenizer/TokenAnnotation*.java</exclude> <!-- JCasgen generated file -->
+                  <exclude>src/main/java/uima/tt/TokenAnnotation*.java</exclude> <!-- JCasgen generated file -->
+                </excludes>              
+              </configuration>
+            </execution>
+          </executions>
+        </plugin> 
+     
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-surefire-plugin</artifactId>
+          <version>2.20.1</version>
+          <configuration>
+            <argLine>@{jacoco.argLine} -Xmx@{maven.surefire.heap} -Xms@{maven.surefire.heap} @{maven.surefire.argLine} @{maven.surefire.java9}</argLine>
+          </configuration>
+        </plugin>
+       </plugins>
+    </pluginManagement> 
+       
+  </build>
+  
+  <profiles>
+    <profile>
+      <id>apache-release</id>
+      
+      <build>
+        <!-- Run jira report -->
+        <!-- depends on having -DjiraVersion set -->
+        <plugins>
+          <plugin>
+            <artifactId>maven-changes-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>default-cli</id>
+                <configuration>
+                  <fixVersionIds>${jiraVersion}</fixVersionIds>
+                </configuration>
+              </execution>
+            </executions>  
+          </plugin>
+          
+          <plugin>
+            <artifactId>maven-antrun-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>generate checksums for binary artifacts</id>
+                <goals>
+                  <goal>run</goal>
+                </goals>
+                <phase>verify</phase>
+                <configuration>
+                  <target>
+                    <checksum algorithm="sha1" format="MD5SUM">
+                      <fileset dir="${project.build.directory}">
+                        <include name="*.zip" />
+                        <include name="*.gz" />
+                      </fileset>
+                    </checksum>
+                  </target>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+          
+          
+        </plugins>     
+      </build>
+    </profile>
+    
+        <!-- **********  Backwards compatibility report generation profile ************** -->
+    <profile>
+      <id>enforce-compatibility</id>
+      <activation>
+        <file>
+          <exists>marker-file-identifying-api-compatibility-check</exists>
+        </file>
+      </activation>
+      <build>
+        
+        <pluginManagement>
+          <plugins>
+            <plugin>
+              <groupId>org.apache.rat</groupId>
+              <artifactId>apache-rat-plugin</artifactId>
+              <executions>
+                <execution>
+                  <id>default-cli</id>
+                  <configuration>
+                    <excludes combine.children="append">
+                      <exclude>**/api-change-report/**/*.*</exclude>
+                    </excludes>
+                  </configuration>
+                </execution>
+            </executions>
+            </plugin>
+          </plugins>
+        </pluginManagement> 
+        
+        <plugins>
+          <!-- https://siom79.github.io/japicmp/MavenPlugin.html -->
+          <plugin>              
+            <groupId>com.github.siom79.japicmp</groupId>
+            <artifactId>japicmp-maven-plugin</artifactId>
+            <version>0.9.4</version>
+            <configuration>
+              <oldVersion>
+                <dependency>
+                  <groupId>${project.groupId}</groupId>
+                  <artifactId>${project.artifactId}</artifactId>
+                  <version>${api_check_oldVersion}</version>
+                </dependency>
+              </oldVersion>
+              <parameter>
+                <onlyModified>true</onlyModified>
+                <!-- filter out classes with impl in their package or class name -->
+                <postAnalysisScript>${project.basedir}/src/main/groovy/api-report.groovy</postAnalysisScript>                  
+              </parameter>
+            </configuration>
+            <executions>
+              <execution>
+                <phase>verify</phase>
+                <goals>
+                  <goal>cmp</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+          
+          <!-- This copy is to have the api change report included in the source distribution -->
+          <plugin>
+            <artifactId>maven-antrun-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>copy-API-change-report</id>
+                <phase>install</phase>  <!-- must follow verify -->
+                <goals><goal>run</goal></goals>
+                <configuration>
+                  <target>
+                    <taskdef name="if" classname="net.sf.antcontrib.logic.IfTask" />
+                    <if>
+                      <available file="${project.build.directory}/japicmp/" />
+                      <then>
+                        <copy toDir="${basedir}/api-change-report">
+                          <fileset dir="${project.build.directory}/japicmp" />
+                        </copy>
+                      </then>
+                    </if>
+                  </target>
+                </configuration>
+              </execution>
+            </executions>
+            
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    
+  </profiles>
+</project>
